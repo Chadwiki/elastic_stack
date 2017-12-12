@@ -50,7 +50,7 @@ http://localhost:5601/api/status
 ### Logstash >
 http://localhost:9600/_stats
 http://localhost:9600/_node?pretty  > individual of comma list
-http://localhost:9600/_node/stats/pipeline?pretty
+http://localhost:9600/_node/stats/pipelines?pretty
 http://localhost:9600/_node/jvm?pretty
 http://localhost:9600/_node/os?pretty
 http://localhost:9600/_node/plugins?pretty
