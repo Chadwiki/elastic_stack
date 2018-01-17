@@ -1,0 +1,128 @@
+### Elasticsearch API endpoints
+### * Cheatsheet 
+### These are used for Troubleshooting or monitoring performance. 
+### Created by Chadwiki
+### Updated 2017.10.30
+### Tested on Elastic stack 5.6.3
+### TODO: Check for 6.x combatabilty and change to MD - 2018.01.17
+
+
+Endpoints for monitoring:
+
+# Disk/Storage utilization + shards -
+http://localhost:9200/_cat/allocation?format=json&bytes=b
+# Health level - 
+http://localhost:9200/_cluster/health?level=
+# Node Level Heap, Memory
+http://localhost:9200/_cat/nodes?format=json&bytes=b&h=heapPercent,heapMax,ramPercent,ramMax,name
+### Check ...v
+http://localhost:9200/_cat/nodes?format=json&bytes=b&h=load,name
+# Node Thread Pool - active/queue/rejected
+http://localhost:9200/_cat/thread_pool?format=json
+http://localhost:9200/_cat/thread_pool?format=json&h=name,node_name,host,active,queue,rejected
+    &h=host,bulk.active,bulk.queue,bulk.rejected,index.active,index.queue,index.rejected,search.active,search.queue,search.rejected
+    Info: https://www.elastic.co/guide/en/elasticsearch/reference/5.6/modules-threadpool.html
+### FIX/Check http://localhost:9200/_cat/thread_pool?format=json&h=host,bulk.active,bulk.queue,bulk.rejected,index.active,index.queue,index.rejected,search.active,search.queue,search.rejected
+# Index Level Stats  search/merges/refresh....
+http://localhost:9200/_stats
+### FIX/Check http://localhost:9200/_stats?all=true
+http://localhost:9200/_nodes/stats/_all?pretty
+    /_nodes/stats?metric=_all
+node:    http://localhost:9200/_nodes/_all?pretty
+# Index Segments
+http://localhost:9200/_segments
+# Index status, Pri/Rep count, docs count/deleted, store sizes
+http://localhost:9200/_cat/indices?format=json&bytes=b
+# Index recovery information
+http://localhost:9200/_recovery?pretty
+### Monitoring and important endpoint:
+ES >
+http://localhost:9200/_cat
+http://localhost:9200/_nodes/http
+http://localhost:9200/_cluster/state/metadata
+http://localhost:9200/_cat/nodes?h=host,file_desc.*&v
+ES Settings>
+# File descriptors 
+http://localhost:9200/_cat/nodes?h=host,file_desc.*&v
+# Check mlockall  
+http://localhost:9200/_nodes?filter_path=**.mlockall
+### Kibana >
+http://localhost:5601/api/status
+### Logstash >
+http://localhost:9600/_stats
+http://localhost:9600/_node?pretty  > individual of comma list
+http://localhost:9600/_node/stats/pipelines?pretty
+http://localhost:9600/_node/jvm?pretty
+http://localhost:9600/_node/os?pretty
+http://localhost:9600/_node/plugins?pretty
+http://localhost:9600/_node/hot_threads?pretty
+    _node/stats/<type>  , type = jvm,process,pipeline, reloads,os
+#### Nodes
+curl -XGET 'http://localhost:9200/_nodes';
+curl -XGET 'http://localhost:9200/_nodes/nodeId1,nodeId2';
+http://localhost:9200/_nodes?pretty
+curl -XGET 'http://localhost:9200/_nodes/process';
+curl -XGET 'http://localhost:9200/_nodes/_all/process';
+curl -XGET 'http://localhost:9200/_nodes/nodeId1,nodeId2/jvm,process';
+# same as above
+curl -XGET 'http://localhost:9200/_nodes/nodeId1,nodeId2/info/jvm,process';
+curl -XGET 'http://localhost:9200/_nodes/nodeId1,nodeId2/_all
+http://localhost:9200/_nodes/jvm,process?pretty
+#### Detailed stats:
+https://www.elastic.co/guide/en/elasticsearch/reference/current/cluster-nodes-stats.html
+# return just indices
+GET /_nodes/stats/indices
+# return just os and process
+GET /_nodes/stats/os,process
+# return just process for node with IP address 10.0.0.1
+GET /_nodes/10.0.0.1/stats/process
+# Fielddata summarised by node
+GET /_nodes/stats/indices/fielddata?fields=field1,field2
+# Fielddata summarised by node and index
+GET /_nodes/stats/indices/fielddata?level=indices&fields=field1,field2
+# Fielddata summarised by node, index, and shard
+GET /_nodes/stats/indices/fielddata?level=shards&fields=field1,field2
+# You can use wildcards for field names
+GET /_nodes/stats/indices/fielddata?fields=field*
+# All groups with all stats
+GET /_nodes/stats?groups=_all
+# Some groups from just the indices stats
+GET /_nodes/stats/indices?groups=foo,bar
+# Hot Threads
+http://localhost:9200/_nodes/hot_threads?pretty
+
+#### Task Managment:
+GET _cluster/pending_tasks
+GET _tasks 
+GET _tasks?nodes=nodeId1,nodeId2 
+GET _tasks?nodes=nodeId1,nodeId2&actions=cluster:* 
+GET _tasks/task_id:1 
+GET _tasks?parent_task_id=parentTaskId:1
+GET _tasks?actions=*search&detailed
+GET _tasks/oTUltX4IQMOUUVeiohTt8A:12345?wait_for_completion=true&timeout=10s
+GET _tasks?actions=*reindex&wait_for_completion=true&timeout=10s
+GET _cat/tasks
+GET _cat/tasks?detailed
+POST _tasks/_cancel?nodes=nodeId1,nodeId2&actions=*reindex
+GET _tasks?group_by=parents
+# Cluster Allocation of shards
+# https://www.elastic.co/guide/en/elasticsearch/reference/current/cluster-allocation-explain.html
+http://localhost:9200/_cluster/allocation/explain?pretty
+http://localhost:9200/_cluster/allocation/explain?include_disk_info=true&pretty
+#Indices: Flush
+POST /_flush
+# Rolling restart
+POST INDEX/_flush/synced
+# Make searchable
+POST /index,elasticsearch/_refresh
+# Shards
+http://localhost:9200/_stats?level=shards&pretty
+
+
+## x-pack Monitoring:
+.monitoring-es-6-2017.10.30/node_stats
+#Query:
+type:”node_stats”
+type: "node_stats" AND node_stats.thread_pool.bulk.rejected: [ 1 TO * ]
+
+similar: http://localhost:9200/_cat/thread_pool?format=json&h=name,node_name,host,active,queue,rejected
