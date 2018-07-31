@@ -1,0 +1,42 @@
+  ## metricbeat version 6.2.4
+  ## ADD the following to your windows module -
+  ## TODO: 1. Add additional perfmon for other IOPS counters
+
+  #------------------------------- Windows Module ------------------------------
+- module: windows
+  metricsets: ["perfmon"]
+  enabled: true
+  perfmon.ignore_non_existent_counters: true
+  period: 3s
+  perfmon.counters:
+
+### Disk raw IOPS, in terms on #/second of read/write/all
+    - instance_label: physical_disk.name
+      measurement_label: physical_disk.transfer.per_sec
+      query: '\PhysicalDisk(*)\Disk Transfers/sec'
+      format: "long"
+
+    - instance_label: physical_disk.name
+      measurement_label: physical_disk.read.per_sec
+      query: '\PhysicalDisk(*)\Disk Reads/sec'
+      format: "long"
+
+    - instance_label: physical_disk.name
+      measurement_label: physical_disk.write.per_sec
+      query: '\PhysicalDisk(*)\Disk Writes/sec'
+      format: "long"
+
+    - instance_label: logical_disk.name
+      measurement_label: logical_disk.transfer.bytes
+      query: '\LogicalDisk(*)\Disk Transfers/sec'
+      format: "long"
+
+    - instance_label: logical_disk.name
+      measurement_label: logical_disk.read.bytes
+      query: '\LogicalDisk(*)\Disk Reads/sec'
+      format: "long"
+
+    - instance_label: logical_disk.name
+      measurement_label: logical_disk.write.per_sec
+      query: '\LogicalDisk(*)\Disk Writes/sec'
+      format: "long"
