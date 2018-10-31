@@ -3,8 +3,8 @@
 #today="date +%Y-%m-%d.%H:%M:%S"
 ES_USER="elastic"
 ES_PASSWORD="elasticchangeme"
-ES_ENDPOINT="192.168.75.155:9200"
-URL="http://192.168.75.155:9200/_cat/templates?v&s=name&h=name&format=json"
+ES_ENDPOINT="127.0.0.1:9200"
+URL="http://127.0.0.1:9200/_cat/templates?v&s=name&h=name&format=json"
 URL_TEMPLATE="http://"$ES_ENDPOINT"/_template"
 
 echo $ES_URL
